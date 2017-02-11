@@ -2,10 +2,6 @@ variable project_name {
   description = "Project name, used for namespacing things"
 }
 
-variable profile {
-  description = "AWS profile used for performing operations"
-}
-
 variable instance_type {
   default = "t2.micro"
 }
