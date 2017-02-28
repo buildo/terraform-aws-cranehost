@@ -16,7 +16,7 @@ data "aws_ami" "ami" {
 }
 
 resource "aws_instance" "instance" {
-  ami = "${data.aws_ami.ami.image_id}"
+  ami = "${coalesce(var.ami, data.aws_ami.ami.image_id)}"
   instance_type = "${var.instance_type}"
   key_name = "${var.ssh_key_name}"
   subnet_id = "${var.subnet_id}"

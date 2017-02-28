@@ -6,6 +6,11 @@ variable instance_type {
   default = "t2.micro"
 }
 
+variable ami {
+  description = "Custom AMI, if empty will use latest Ubuntu"
+  default = ""
+}
+
 variable region {
   default = "eu-west-1"
 }
