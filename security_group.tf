@@ -21,6 +21,7 @@ resource "aws_security_group_rule" "out_all" {
 }
 
 resource "aws_security_group_rule" "custom_ports" {
+  count = "${length(var.in_open_ports)}"
   type = "ingress"
   protocol = "tcp"
   security_group_id = "${aws_security_group.sg.id}"
