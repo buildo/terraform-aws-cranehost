@@ -74,8 +74,7 @@ resource "aws_instance" "instance" {
     inline = [
       "docker login quay.io -u dontspamus -p ${var.quay_password}",
       "chmod +x ./init.sh",
-      "./init.sh",
-      "crane lift"
+      "./init.sh"
     ]
   }
 }
