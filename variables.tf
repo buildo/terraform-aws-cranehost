@@ -52,3 +52,8 @@ variable init_script {
 variable in_open_ports {
   default = []
 }
+
+variable disk_utilization_alarm_threshold {
+  description = "disk occupation alarm threshold (% of disk utilization)"
+  default = "80"
+}

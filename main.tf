@@ -87,7 +87,7 @@ resource "aws_cloudwatch_metric_alarm" "disk-full" {
   namespace                 = "System/Linux"
   period                    = "60"
   statistic                 = "Average"
-  threshold                 = "80"
+  threshold                 = "${var.disk_utilization_alarm_threshold}"
   alarm_description         = "This metric monitors disk utilization"
   alarm_actions = ["arn:aws:sns:eu-west-1:309416224681:bellosguardo"]
   treat_missing_data = "breaching"
