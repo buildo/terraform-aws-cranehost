@@ -79,6 +79,26 @@ resource "aws_instance" "instance" {
   }
 }
 
+resource "aws_cloudwatch_metric_alarm" "disk-full" {
+  alarm_name                = "${aws_instance.instance.id}-disk-full"
+  comparison_operator       = "GreaterThanOrEqualToThreshold"
+  evaluation_periods        = "3"
+  metric_name               = "DiskSpaceUtilization"
+  namespace                 = "System/Linux"
+  period                    = "60"
+  statistic                 = "Average"
+  threshold                 = "80"
+  alarm_description         = "This metric monitors disk utilization"
+  alarm_actions = ["arn:aws:sns:eu-west-1:309416224681:bellosguardo"]
+  treat_missing_data = "breaching"
+  dimensions {
+    InstanceId = "${aws_instance.instance.id}"
+    MountPath = "/"
+    Filesystem = "overlay"
+  }
+}
+
+
 
 resource "aws_route53_record" "dns" {
   zone_id = "${var.zone_id}"
