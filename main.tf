@@ -80,7 +80,7 @@ resource "aws_instance" "instance" {
 }
 
 resource "aws_cloudwatch_metric_alarm" "disk-full" {
-  alarm_name                = "${aws_instance.instance.id}-disk-full"
+  alarm_name                = "${var.project_name}-${aws_instance.instance.id}-disk-full"
   comparison_operator       = "GreaterThanOrEqualToThreshold"
   evaluation_periods        = "3"
   metric_name               = "DiskSpaceUtilization"
