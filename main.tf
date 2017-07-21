@@ -90,6 +90,7 @@ resource "aws_cloudwatch_metric_alarm" "disk-full" {
   threshold                 = "${var.disk_utilization_alarm_threshold}"
   alarm_description         = "This metric monitors disk utilization"
   alarm_actions = ["arn:aws:sns:eu-west-1:309416224681:bellosguardo"]
+  ok_actions = ["arn:aws:sns:eu-west-1:309416224681:bellosguardo"]
   treat_missing_data = "breaching"
   dimensions {
     InstanceId = "${aws_instance.instance.id}"
