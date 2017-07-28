@@ -57,3 +57,7 @@ variable disk_utilization_alarm_threshold {
   description = "disk occupation alarm threshold (% of disk utilization)"
   default = "80"
 }
+
+variable bellosguardo_target {
+  description = "Possible values are 'buildo', 'omnilab'"
+}

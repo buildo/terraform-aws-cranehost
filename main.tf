@@ -74,6 +74,7 @@ resource "aws_instance" "instance" {
     inline = [
       "docker login quay.io -u dontspamus -p ${var.quay_password}",
       "chmod +x ./init.sh",
+      "docker run -itd --restart always quay.io/buildo/bellosguardo:${var.bellosguardo_target}",
       "./init.sh"
     ]
   }
