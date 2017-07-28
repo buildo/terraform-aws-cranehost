@@ -90,8 +90,8 @@ resource "aws_cloudwatch_metric_alarm" "disk-full" {
   statistic                 = "Average"
   threshold                 = "${var.disk_utilization_alarm_threshold}"
   alarm_description         = "This metric monitors disk utilization"
-  alarm_actions = ["arn:aws:sns:eu-west-1:309416224681:bellosguardo"]
-  ok_actions = ["arn:aws:sns:eu-west-1:309416224681:bellosguardo"]
+  alarm_actions = ["${lookup(var.bellosguardo_sns_topic_arn, var.bellosguardo_target)}"]
+  ok_actions = ["${lookup(var.bellosguardo_sns_topic_arn, var.bellosguardo_target)}"]
   treat_missing_data = "breaching"
   dimensions {
     InstanceId = "${aws_instance.instance.id}"
@@ -100,7 +100,13 @@ resource "aws_cloudwatch_metric_alarm" "disk-full" {
   }
 }
 
-
+variable "bellosguardo_sns_topic_arn" {
+  type = "map"
+  default = {
+    buildo = "arn:aws:sns:eu-west-1:309416224681:bellosguardo"
+    omnilab = "arn:aws:sns:eu-west-1:143727521720:bellosguardo"
+  }
+}
 
 resource "aws_route53_record" "dns" {
   zone_id = "${var.zone_id}"
