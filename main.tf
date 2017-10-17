@@ -20,7 +20,7 @@ resource "aws_instance" "instance" {
   instance_type = "${var.instance_type}"
   key_name = "${var.ssh_key_name}"
   subnet_id = "${var.subnet_id}"
-  vpc_security_group_ids = ["${aws_security_group.sg.id}"]
+  security_groups = ["${aws_security_group.sg.name}"]
   associate_public_ip_address = true
 
   tags {
