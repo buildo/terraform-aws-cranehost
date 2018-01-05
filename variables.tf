@@ -15,10 +15,6 @@ variable region {
   default = "eu-west-1"
 }
 
-variable subnet_id {
-  description = "Subnet Id (default for buildo: subnet-789e130f, omnilab: subnet-13126d4a)"
-}
-
 variable volume_size {
   description = "Volume size"
   default = 8
