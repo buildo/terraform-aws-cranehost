@@ -25,7 +25,11 @@ resource "aws_security_group_rule" "custom_ports" {
   type = "ingress"
   protocol = "tcp"
   security_group_id = "${aws_security_group.sg.id}"
-  from_port = "${element(var.in_open_ports, count.index)}"
-  to_port = "${element(var.in_open_ports, count.index)}"
+  from_port = "${2 == length(split("-", element(var.in_open_ports, count.index))) ?
+      element(split("-", element(var.in_open_ports, count.index)), 0) :
+      element(var.in_open_ports, count.index) }"
+  to_port = "${2 == length(split("-", element(var.in_open_ports, count.index))) ?
+      element(split("-", element(var.in_open_ports, count.index)), 1) :
+      element(var.in_open_ports, count.index) }"
   cidr_blocks = ["0.0.0.0/0"]
 }
