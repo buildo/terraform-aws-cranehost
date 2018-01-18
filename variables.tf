@@ -11,10 +11,6 @@ variable ami {
   default = ""
 }
 
-variable region {
-  default = "eu-west-1"
-}
-
 variable volume_size {
   description = "Volume size"
   default = 8
