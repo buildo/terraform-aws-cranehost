@@ -31,5 +31,5 @@ resource "aws_security_group_rule" "custom_ports" {
   to_port = "${2 == length(split("-", element(var.in_open_ports, count.index))) ?
       element(split("-", element(var.in_open_ports, count.index)), 1) :
       element(var.in_open_ports, count.index) }"
-  cidr_blocks = ["0.0.0.0/0"]
+  cidr_blocks = "${var.in_cidr_blocks}"
 }

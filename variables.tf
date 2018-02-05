@@ -45,6 +45,10 @@ variable in_open_ports {
   default = []
 }
 
+variable in_cidr_blocks {
+  default = ["0.0.0.0/0"]
+}
+
 variable disk_utilization_alarm_threshold {
   description = "disk occupation alarm threshold (% of disk utilization)"
   default = "80"
