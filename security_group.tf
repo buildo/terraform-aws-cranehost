@@ -8,7 +8,7 @@ resource "aws_security_group_rule" "ssh" {
   security_group_id = "${aws_security_group.sg.id}"
   from_port = 22
   to_port = 22
-  cidr_blocks = ["0.0.0.0/0"]
+  cidr_blocks = "${var.in_cidr_blocks}"
 }
 
 resource "aws_security_group_rule" "out_all" {
