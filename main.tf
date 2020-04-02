@@ -1,22 +1,25 @@
 data "aws_ami" "ami" {
   most_recent = true
-  owners = ["099720109477"]
+  owners      = ["099720109477"]
+
   filter {
-    name = "name"
+    name   = "name"
     values = ["ubuntu/images/hvm-ssd/ubuntu-xenial-16.04-amd64-server-*"]
   }
+
   filter {
-    name = "virtualization-type"
+    name   = "virtualization-type"
     values = ["hvm"]
   }
 }
 
 resource "aws_instance" "instance" {
-  ami = "${coalesce(var.ami, data.aws_ami.ami.image_id)}"
-  instance_type = "${var.instance_type}"
-  key_name = "${var.ssh_key_name}"
-  security_groups = ["${aws_security_group.sg.name}"]
+  ami                         = "${coalesce(var.ami, data.aws_ami.ami.image_id)}"
+  instance_type               = "${var.instance_type}"
+  key_name                    = "${var.ssh_key_name}"
+  security_groups             = ["${aws_security_group.sg.name}"]
   associate_public_ip_address = true
+  iam_instance_profile        = "${var.iam_instance_profile}"
 
   tags {
     Name = "${var.project_name}"
@@ -27,28 +30,28 @@ resource "aws_instance" "instance" {
   }
 
   connection {
-    user = "ubuntu"
+    user        = "ubuntu"
     private_key = "${file("${var.ssh_private_key}")}"
   }
 
   provisioner "file" {
-    content = "${file("crane.yml")}"
+    content     = "${file("crane.yml")}"
     destination = "~/crane.yml"
   }
 
   provisioner "file" {
-    content = "${var.init_script}"
+    content     = "${var.init_script}"
     destination = "~/init.sh"
   }
 
   provisioner "remote-exec" {
     inline = [
-      "mkdir -p ~/config"
+      "mkdir -p ~/config",
     ]
   }
 
   provisioner "file" {
-    source = "${path.cwd}/config/"
+    source      = "${path.cwd}/config/"
     destination = "~/config/"
   }
 
@@ -61,7 +64,7 @@ resource "aws_instance" "instance" {
       "sudo apt-get install -y docker-engine",
       "sudo service docker start",
       "sudo usermod -aG docker $USER",
-      "bash -c \"`curl -sL https://raw.githubusercontent.com/michaelsauter/crane/v2.9.0/download.sh`\" && sudo mv crane /usr/local/bin/crane"
+      "bash -c \"`curl -sL https://raw.githubusercontent.com/michaelsauter/crane/v2.9.0/download.sh`\" && sudo mv crane /usr/local/bin/crane",
     ]
   }
 
@@ -70,43 +73,45 @@ resource "aws_instance" "instance" {
       "docker login quay.io -u dontspamus -p ${var.quay_password}",
       "chmod +x ./init.sh",
       "docker run -itd --restart always quay.io/buildo/bellosguardo:${var.bellosguardo_target}",
-      "./init.sh"
+      "./init.sh",
     ]
   }
 }
 
 resource "aws_cloudwatch_metric_alarm" "disk-full" {
-  alarm_name                = "${var.project_name}-${aws_instance.instance.id}-disk-full"
-  comparison_operator       = "GreaterThanOrEqualToThreshold"
-  evaluation_periods        = "3"
-  metric_name               = "DiskSpaceUtilization"
-  namespace                 = "System/Linux"
-  period                    = "60"
-  statistic                 = "Average"
-  threshold                 = "${var.disk_utilization_alarm_threshold}"
-  alarm_description         = "This metric monitors disk utilization"
-  alarm_actions = ["${lookup(var.bellosguardo_sns_topic_arn, var.bellosguardo_target)}"]
-  ok_actions = ["${lookup(var.bellosguardo_sns_topic_arn, var.bellosguardo_target)}"]
-  treat_missing_data = "breaching"
+  alarm_name          = "${var.project_name}-${aws_instance.instance.id}-disk-full"
+  comparison_operator = "GreaterThanOrEqualToThreshold"
+  evaluation_periods  = "3"
+  metric_name         = "DiskSpaceUtilization"
+  namespace           = "System/Linux"
+  period              = "60"
+  statistic           = "Average"
+  threshold           = "${var.disk_utilization_alarm_threshold}"
+  alarm_description   = "This metric monitors disk utilization"
+  alarm_actions       = ["${lookup(var.bellosguardo_sns_topic_arn, var.bellosguardo_target)}"]
+  ok_actions          = ["${lookup(var.bellosguardo_sns_topic_arn, var.bellosguardo_target)}"]
+  treat_missing_data  = "breaching"
+
   dimensions {
     InstanceId = "${aws_instance.instance.id}"
-    MountPath = "/"
+    MountPath  = "/"
     Filesystem = "overlay"
   }
 }
 
 variable "bellosguardo_sns_topic_arn" {
   type = "map"
+
   default = {
-    buildo = "arn:aws:sns:eu-west-1:309416224681:bellosguardo"
+    buildo  = "arn:aws:sns:eu-west-1:309416224681:bellosguardo"
     omnilab = "arn:aws:sns:eu-west-1:143727521720:bellosguardo"
   }
 }
 
 resource "aws_route53_record" "dns" {
   zone_id = "${var.zone_id}"
-  name = "${var.host_name}"
-  type = "A"
-  ttl = "300"
+  name    = "${var.host_name}"
+  type    = "A"
+  ttl     = "300"
   records = ["${aws_instance.instance.public_ip}"]
 }

@@ -8,12 +8,12 @@ variable instance_type {
 
 variable ami {
   description = "Custom AMI, if empty will use latest Ubuntu"
-  default = ""
+  default     = ""
 }
 
 variable volume_size {
   description = "Volume size"
-  default = 8
+  default     = 8
 }
 
 variable ssh_private_key {
@@ -38,7 +38,7 @@ variable quay_password {
 
 variable init_script {
   description = "bash code executed before `crane lift` is called, example: `\"${file(\"init.sh\")}\"`"
-  default = ""
+  default     = ""
 }
 
 variable in_open_ports {
@@ -51,9 +51,13 @@ variable in_cidr_blocks {
 
 variable disk_utilization_alarm_threshold {
   description = "disk occupation alarm threshold (% of disk utilization)"
-  default = "80"
+  default     = "80"
 }
 
 variable bellosguardo_target {
   description = "Possible values are 'buildo', 'omnilab'"
+}
+
+variable iam_instance_profile {
+  default = ""
 }
