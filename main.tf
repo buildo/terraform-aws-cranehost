@@ -14,33 +14,35 @@ data "aws_ami" "ami" {
 }
 
 resource "aws_instance" "instance" {
-  ami                         = "${coalesce(var.ami, data.aws_ami.ami.image_id)}"
-  instance_type               = "${var.instance_type}"
-  key_name                    = "${var.ssh_key_name}"
-  security_groups             = ["${aws_security_group.sg.name}"]
+  ami                         = coalesce(var.ami, data.aws_ami.ami.image_id)
+  instance_type               = var.instance_type
+  key_name                    = var.ssh_key_name
+  security_groups             = [aws_security_group.sg.name]
   associate_public_ip_address = true
-  iam_instance_profile        = "${var.iam_instance_profile}"
+  iam_instance_profile        = var.iam_instance_profile
 
-  tags {
-    Name = "${var.project_name}"
+  tags = {
+    Name = var.project_name
   }
 
   root_block_device {
-    volume_size = "${var.volume_size}"
+    volume_size = var.volume_size
   }
 
   connection {
+    host        = coalesce(self.public_ip, self.private_ip)
+    type        = "ssh"
     user        = "ubuntu"
-    private_key = "${file("${var.ssh_private_key}")}"
+    private_key = file(var.ssh_private_key)
   }
 
   provisioner "file" {
-    content     = "${file("crane.yml")}"
+    content     = file("crane.yml")
     destination = "~/crane.yml"
   }
 
   provisioner "file" {
-    content     = "${var.init_script}"
+    content     = var.init_script
     destination = "~/init.sh"
   }
 
@@ -86,21 +88,21 @@ resource "aws_cloudwatch_metric_alarm" "disk-full" {
   namespace           = "System/Linux"
   period              = "60"
   statistic           = "Average"
-  threshold           = "${var.disk_utilization_alarm_threshold}"
+  threshold           = var.disk_utilization_alarm_threshold
   alarm_description   = "This metric monitors disk utilization"
-  alarm_actions       = ["${lookup(var.bellosguardo_sns_topic_arn, var.bellosguardo_target)}"]
-  ok_actions          = ["${lookup(var.bellosguardo_sns_topic_arn, var.bellosguardo_target)}"]
+  alarm_actions       = [var.bellosguardo_sns_topic_arn[var.bellosguardo_target]]
+  ok_actions          = [var.bellosguardo_sns_topic_arn[var.bellosguardo_target]]
   treat_missing_data  = "breaching"
 
-  dimensions {
-    InstanceId = "${aws_instance.instance.id}"
+  dimensions = {
+    InstanceId = aws_instance.instance.id
     MountPath  = "/"
     Filesystem = "overlay"
   }
 }
 
 variable "bellosguardo_sns_topic_arn" {
-  type = "map"
+  type = map(string)
 
   default = {
     buildo  = "arn:aws:sns:eu-west-1:309416224681:bellosguardo"
@@ -109,9 +111,9 @@ variable "bellosguardo_sns_topic_arn" {
 }
 
 resource "aws_route53_record" "dns" {
-  zone_id = "${var.zone_id}"
-  name    = "${var.host_name}"
+  zone_id = var.zone_id
+  name    = var.host_name
   type    = "A"
   ttl     = "300"
-  records = ["${aws_instance.instance.public_ip}"]
+  records = [aws_instance.instance.public_ip]
 }
